@@ -10,7 +10,7 @@ IndexBySinger = False
 if __name__ == "__main__":
     os.makedirs("./files/", exist_ok=True)
 
-    rootPath = "./data_svc/waves-32k/"
+    rootPath = "./data_svc/waves-48k/"
     all_items = []
     for spks in os.listdir(f"./{rootPath}"):
         if not os.path.isdir(f"./{rootPath}/{spks}"):
@@ -25,7 +25,7 @@ if __name__ == "__main__":
                 else:
                     path_spk = f"./data_svc/singer/{spks}.spk.npy"
 
-                path_wave = f"./data_svc/waves-32k/{spks}/{file}.wav"
+                path_wave = f"./data_svc/waves-48k/{spks}/{file}.wav"
                 path_spec = f"./data_svc/specs/{spks}/{file}.pt"
                 path_pitch = f"./data_svc/pitch/{spks}/{file}.pit.npy"
                 path_hubert = f"./data_svc/hubert/{spks}/{file}.vec.npy"
