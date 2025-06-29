@@ -46,7 +46,7 @@ if __name__ == "__main__":
     wavPath = args.wav
     outPath = args.out
 
-    assert args.sr == 16000 or args.sr == 32000
+    assert args.sr in (16000, 32000, 48000)
 
     for spks in os.listdir(wavPath):
         if os.path.isdir(f"./{wavPath}/{spks}"):

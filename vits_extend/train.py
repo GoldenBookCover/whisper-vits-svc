@@ -112,7 +112,7 @@ def train(rank, args, chkpt_path, hp, hp_str):
 
     if os.path.isfile(hp.train.pretrain):
         if rank == 0:
-            logger.info("Start from 32k pretrain model: %s" % hp.train.pretrain)
+            logger.info("Start from 48k pretrain model: %s" % hp.train.pretrain)
         checkpoint = torch.load(hp.train.pretrain, map_location='cpu')
         load_model(model_g, checkpoint['model_g'])
         load_model(model_d, checkpoint['model_d'])

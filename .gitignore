@@ -8,3 +8,4 @@ hubert_pretrain/hubert-soft-0d54a1f4.pt
 speaker_pretrain/best_model.pth.tar
 vits_pretrain/sovits5.0.pretrain.pth
 whisper_pretrain/large-v2.pt
+/logs/*
