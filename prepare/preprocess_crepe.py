@@ -48,6 +48,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-w", "--wav", help="wav", dest="wav", required=True)
     parser.add_argument("-p", "--pit", help="pit", dest="pit", required=True)
+    parser.add_argument("-u", "--use_cpu", action='store_true', help="use CPU as device")
 
     args = parser.parse_args()
     print(args.wav)
@@ -57,7 +58,7 @@ if __name__ == "__main__":
     wavPath = args.wav
     pitPath = args.pit
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() and (not args.use_cpu) else "cpu"
 
     for spks in os.listdir(wavPath):
         if os.path.isdir(f"./{wavPath}/{spks}"):

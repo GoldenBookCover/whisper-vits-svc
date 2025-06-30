@@ -123,11 +123,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-w", "--wav", help="wav", dest="wav", required=True)
     parser.add_argument("-p", "--pit", help="pit", dest="pit", required=True)  # csv for excel
+    parser.add_argument("-u", "--use_cpu", action='store_true', help="use CPU as device")
     args = parser.parse_args()
     print(args.wav)
     print(args.pit)
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() and (not args.use_cpu) else "cpu"
     pitch = compute_f0_sing(args.wav, device)
     save_csv_pitch(pitch, args.pit)
     # tmp = load_csv_pitch(args.pit)

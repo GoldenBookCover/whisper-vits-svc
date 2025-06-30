@@ -9,8 +9,8 @@ from whisper.model import Whisper, ModelDimensions
 from whisper.audio import load_audio, pad_or_trim, log_mel_spectrogram
 
 
-def load_model(path) -> Whisper:
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+def load_model(path, device) -> Whisper:
+    # device = "cuda" if torch.cuda.is_available() else "cpu"
     checkpoint = torch.load(path, map_location="cpu")
     dims = ModelDimensions(**checkpoint["dims"])
     print(dims)
@@ -43,6 +43,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-w", "--wav", help="wav", dest="wav", required=True)
     parser.add_argument("-p", "--ppg", help="ppg", dest="ppg", required=True)
+    parser.add_argument("-u", "--use_cpu", action='store_true', help="use CPU as device")
     args = parser.parse_args()
     print(args.wav)
     print(args.ppg)
@@ -51,7 +52,8 @@ if __name__ == "__main__":
     wavPath = args.wav
     ppgPath = args.ppg
 
-    whisper = load_model(os.path.join("whisper_pretrain", "large-v2.pt"))
+    device = "cuda" if torch.cuda.is_available() and (not args.use_cpu) else "cpu"
+    whisper = load_model(os.path.join("whisper_pretrain", "large-v2.pt"), device=device)
     spkPaths = os.listdir(wavPath)
     random.shuffle(spkPaths)
 

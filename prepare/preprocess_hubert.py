@@ -36,6 +36,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-w", "--wav", help="wav", dest="wav", required=True)
     parser.add_argument("-v", "--vec", help="vec", dest="vec", required=True)
+    parser.add_argument("-u", "--use_cpu", action='store_true', help="use CPU as device")
     
     args = parser.parse_args()
     print(args.wav)
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     wavPath = args.wav
     vecPath = args.vec
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() and (not args.use_cpu) else "cpu"
     hubert = load_model(os.path.join("hubert_pretrain", "hubert-soft-0d54a1f4.pt"), device)
 
     for spks in os.listdir(wavPath):

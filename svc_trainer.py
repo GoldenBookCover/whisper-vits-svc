@@ -16,6 +16,8 @@ if __name__ == '__main__':
                         help="yaml file for configuration")
     parser.add_argument('-p', '--checkpoint_path', type=str, default=None,
                         help="path of checkpoint pt file to resume training")
+    parser.add_argument('-u', '--use_cpu', action='store_true',
+                        help="use CPU as device")
     parser.add_argument('-n', '--name', type=str, required=True,
                         help="name of the model for logging, saving checkpoint")
     args = parser.parse_args()
@@ -27,9 +29,9 @@ if __name__ == '__main__':
     assert hp.data.hop_length == 480, \
         'hp.data.hop_length must be equal to 480, got %d' % hp.data.hop_length
 
-    args.num_gpus = 0
+    args.num_gpus = 1
     torch.manual_seed(hp.train.seed)
-    if torch.cuda.is_available():
+    if torch.cuda.is_available() and (not args.use_cpu):
         torch.cuda.manual_seed(hp.train.seed)
         args.num_gpus = torch.cuda.device_count()
         print('Batch size per GPU :', hp.train.batch_size)
@@ -40,4 +42,5 @@ if __name__ == '__main__':
         else:
             train(0, args, args.checkpoint_path, hp, hp_str)
     else:
-        print('No GPU found!')
+        print('Will use CPU.')
+        train(0, args, args.checkpoint_path, hp, hp_str)
