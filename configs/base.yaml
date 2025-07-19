@@ -1,7 +1,7 @@
 train:
   model: "sovits"
   seed: 1234
-  epochs: 10000
+  epochs: 410
   learning_rate: 5e-5
   betas: [0.8, 0.99]
   lr_decay: 0.999875
