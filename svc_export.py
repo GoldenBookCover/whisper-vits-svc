@@ -9,7 +9,7 @@ from vits.models import SynthesizerInfer
 
 def load_model(checkpoint_path, model):
     assert os.path.isfile(checkpoint_path)
-    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu")
+    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     saved_state_dict = checkpoint_dict["model_g"]
     if hasattr(model, "module"):
         state_dict = model.module.state_dict()
@@ -30,7 +30,7 @@ def load_model(checkpoint_path, model):
 
 def save_pretrain(checkpoint_path, save_path):
     assert os.path.isfile(checkpoint_path)
-    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu")
+    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     torch.save({
         'model_g': checkpoint_dict['model_g'],
         'model_d': checkpoint_dict['model_d'],
@@ -54,7 +54,7 @@ def main(args):
 
     # save_pretrain(args.checkpoint_path, "sovits5.0.pretrain.pth")
     load_model(args.checkpoint_path, model)
-    save_model(model, "sovits5.0.pth")
+    save_model(model, args.output)
 
 
 if __name__ == '__main__':
@@ -63,6 +63,7 @@ if __name__ == '__main__':
                         help="yaml file for config. will use hp_str from checkpoint if not given.")
     parser.add_argument('-p', '--checkpoint_path', type=str, required=True,
                         help="path of checkpoint pt file for evaluation")
+    parser.add_argument('-o', '--output', type=str, required=True)
     args = parser.parse_args()
 
     main(args)
