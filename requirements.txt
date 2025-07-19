@@ -1,6 +1,6 @@
 fsspec
 pyworld
-matplotlib
+matplotlib==3.9.0
 soundfile
 scikit-learn
 scipy
@@ -9,7 +9,7 @@ transformers
 tqdm
 librosa
 omegaconf
-gradio==3.36.1
+gradio
 ruamel.yaml
 resampy
 numpy==1.24

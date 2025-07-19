@@ -66,7 +66,7 @@ def train(rank, args, chkpt_path, hp, hp_str):
                            world_size=hp.dist_config.world_size * args.num_gpus, rank=rank)
 
     torch.cuda.manual_seed(hp.train.seed)
-    device = torch.device('cuda:{:d}'.format(rank))
+    device = torch.device('cuda:{:d}'.format(rank)) if torch.cuda.is_available() and (not args.use_cpu) else torch.device('cpu')
 
     model_g = SynthesizerTrn(
         hp.data.filter_length // 2 + 1,
@@ -112,15 +112,15 @@ def train(rank, args, chkpt_path, hp, hp_str):
 
     if os.path.isfile(hp.train.pretrain):
         if rank == 0:
-            logger.info("Start from 32k pretrain model: %s" % hp.train.pretrain)
-        checkpoint = torch.load(hp.train.pretrain, map_location='cpu')
+            logger.info("Start from 48k pretrain model: %s" % hp.train.pretrain)
+        checkpoint = torch.load(hp.train.pretrain, map_location='cpu', weights_only=False)
         load_model(model_g, checkpoint['model_g'])
         load_model(model_d, checkpoint['model_d'])
 
     if chkpt_path is not None:
         if rank == 0:
             logger.info("Resuming from checkpoint: %s" % chkpt_path)
-        checkpoint = torch.load(chkpt_path, map_location='cpu')
+        checkpoint = torch.load(chkpt_path, map_location='cpu', weights_only=False)
         load_model(model_g, checkpoint['model_g'])
         load_model(model_d, checkpoint['model_d'])
         optim_g.load_state_dict(checkpoint['optim_g'])
