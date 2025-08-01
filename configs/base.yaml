@@ -52,13 +52,14 @@ mpd:
   lReLU_slope: 0.2
 #############################
 mrd:
-  resolutions: "[(1024, 120, 600), (2048, 240, 1200), (4096, 480, 2400), (512, 50, 240)]" # (filter_length, hop_length, win_length)
+  # (filter_length, hop_length, win_length)
+  resolutions: "[(1536, 180, 900), (3072, 360, 1800), (6144, 720, 3600), (768, 75, 360)]"
   use_spectral_norm: False
   lReLU_slope: 0.2
 #############################
 log:
   info_interval: 100
-  eval_interval: 1
+  eval_interval: 5
   save_interval: 5
   num_audio: 6
   pth_dir: 'chkpt'
