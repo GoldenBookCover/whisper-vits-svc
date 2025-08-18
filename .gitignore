@@ -1,6 +1,7 @@
 __pycache__/
 /dataset_raw/
 /data_svc/
+/chkpt/*
 crepe/assets/full.pth
 files/train.txt
 files/valid.txt

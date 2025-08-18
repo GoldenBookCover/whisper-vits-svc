@@ -9,7 +9,7 @@ from vits.models import SynthesizerInfer
 
 def load_model(checkpoint_path, model):
     assert os.path.isfile(checkpoint_path)
-    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     saved_state_dict = checkpoint_dict["model_g"]
     if hasattr(model, "module"):
         state_dict = model.module.state_dict()
@@ -30,7 +30,7 @@ def load_model(checkpoint_path, model):
 
 def save_pretrain(checkpoint_path, save_path):
     assert os.path.isfile(checkpoint_path)
-    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     torch.save({
         'model_g': checkpoint_dict['model_g'],
         'model_d': checkpoint_dict['model_d'],
