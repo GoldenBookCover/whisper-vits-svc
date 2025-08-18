@@ -2,6 +2,7 @@ import os
 import time
 import logging
 import math
+import shutil
 import tqdm
 import torch
 import torch.nn as nn
@@ -59,7 +60,7 @@ def load_model(model, saved_state_dict):
     return model
 
 
-def train(rank, args, chkpt_path, hp, hp_str):
+def train(rank, args, chkpt_path, hp, hp_str, best_loss_=1):
 
     if args.num_gpus > 1:
         init_process_group(backend=hp.dist_config.dist_backend, init_method=hp.dist_config.dist_url,
@@ -150,6 +151,9 @@ def train(rank, args, chkpt_path, hp, hp_str):
     spkc_criterion = nn.CosineEmbeddingLoss()
 
     trainloader = create_dataloader_train(hp, args.num_gpus, rank)
+
+    # 使用mel loss作为基准
+    best_loss = best_loss_
 
     for epoch in range(init_epoch, hp.train.epochs):
 
@@ -275,6 +279,15 @@ def train(rank, args, chkpt_path, hp, hp_str):
                 'hp_str': hp_str,
             }, save_path)
             logger.info("Saved checkpoint to: %s" % save_path)
+
+            logger.info("存储点loss:" + str(loss_m) + " best_loss:" + str(best_loss))
+            if loss_m < best_loss:
+                best_loss = loss_m
+                best_model_path = os.path.join(pth_dir, "best.pt")
+                if os.path.exists(best_model_path):
+                    os.remove(best_model_path)
+                shutil.copy(save_path, best_model_path)
+                logger.info("保存best.pt, epoch:" + str(epoch))
 
         if rank == 0:
             def clean_checkpoints(path_to_models=f'{pth_dir}', n_ckpts_to_keep=hp.log.keep_ckpts, sort_by_time=True):

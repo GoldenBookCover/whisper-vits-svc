@@ -4,6 +4,7 @@ import argparse
 import torch
 import torch.multiprocessing as mp
 from omegaconf import OmegaConf
+from pprint import pp
 
 from vits_extend.train import train
 
@@ -20,6 +21,8 @@ if __name__ == '__main__':
                         help="use CPU as device")
     parser.add_argument('-n', '--name', type=str, required=True,
                         help="name of the model for logging, saving checkpoint")
+    parser.add_argument('-l', '--best-loss', type=float, required=False,
+                        help="Best loss for resuming training")
     args = parser.parse_args()
 
     hp = OmegaConf.load(args.config)
@@ -29,6 +32,7 @@ if __name__ == '__main__':
     assert hp.data.hop_length == 480, \
         'hp.data.hop_length must be equal to 480, got %d' % hp.data.hop_length
 
+    best_loss = args.best_loss or 1
     args.num_gpus = 1
     torch.manual_seed(hp.train.seed)
     if torch.cuda.is_available() and (not args.use_cpu):
@@ -40,7 +44,8 @@ if __name__ == '__main__':
             mp.spawn(train, nprocs=args.num_gpus,
                      args=(args, args.checkpoint_path, hp, hp_str,))
         else:
-            train(0, args, args.checkpoint_path, hp, hp_str)
+            train(0, args, args.checkpoint_path, hp, hp_str, best_loss)
     else:
         print('Will use CPU.')
-        train(0, args, args.checkpoint_path, hp, hp_str)
+        train(0, args, args.checkpoint_path, hp, hp_str, best_loss)
+

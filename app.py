@@ -143,7 +143,7 @@ class WebUI:
             self.bt_infer.click(fn=self.inference, inputs=[self.input_wav, self.resume_voice, self.keychange], outputs=[self.output_wav])
             self.bt_refersh2.click(fn=self.refresh_model_and_voice, inputs=[self.model_name],outputs=[self.resume_model2, self.resume_voice])
 
-        ui.launch(inbrowser=True, server_port=2333, share=False)
+        ui.launch(inbrowser=True, server_port=2333, share=False, server_name='0.0.0.0')
 
     def openfolder(self):
 

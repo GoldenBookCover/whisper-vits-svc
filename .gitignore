@@ -1,6 +1,6 @@
 __pycache__/
-/dataset_raw/
-/data_svc/
+/dataset_raw*/
+/data_svc*/
 /chkpt/*
 crepe/assets/full.pth
 files/train.txt
@@ -10,3 +10,9 @@ speaker_pretrain/best_model.pth.tar
 vits_pretrain/sovits5.0.pretrain.pth
 whisper_pretrain/large-v2.pt
 /logs/*
+/*.pt
+/*.zip
+configs/train.yaml
+/models/
+vctk-corpus-0.92/
+
