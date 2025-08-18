@@ -1,6 +1,9 @@
 import logging
-import sys,os
+import shutil
+import sys, os
 from pathlib import Path
+
+from pitch.inference import pitch_infer
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import torch
@@ -74,7 +77,7 @@ def load_svc_model(checkpoint_path, model):
     return model
 
 
-def svc_infer(model, retrieval: IRetrieval, spk, pit, ppg, vec, hp, device):
+def svc_infer(model, retrieval: IRetrieval, spk, pit, ppg, vec, hp, device, temp_dir):
     len_pit = pit.size()[0]
     len_vec = vec.size()[0]
     len_ppg = ppg.size()[0]
@@ -89,7 +92,7 @@ def svc_infer(model, retrieval: IRetrieval, spk, pit, ppg, vec, hp, device):
         source = pit.unsqueeze(0).to(device)
         source = model.pitch2source(source)
         pitwav = model.source2wav(source)
-        write("svc_out_pit.wav", hp.data.sampling_rate, pitwav)
+        write(os.path.join(temp_dir, "svc_out_pit.wav"), hp.data.sampling_rate, pitwav)
 
         hop_size = hp.data.hop_length
         all_frame = len_min
@@ -135,23 +138,29 @@ def svc_infer(model, retrieval: IRetrieval, spk, pit, ppg, vec, hp, device):
 
 
 def main(args):
+    temp_dir = os.path.join("temp", "temp_" + os.path.basename(args.wave))
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
+    os.makedirs(temp_dir)
+
     if (args.ppg == None):
-        args.ppg = "svc_tmp.ppg.npy"
+        args.ppg = os.path.join(temp_dir, "svc_tmp.ppg.npy")
         print(
             f"Auto run : python whisper/inference.py -w {args.wave} -p {args.ppg}")
         os.system(f"python whisper/inference.py -w {args.wave} -p {args.ppg}")
 
     if (args.vec == None):
-        args.vec = "svc_tmp.vec.npy"
+        args.vec = os.path.join(temp_dir, "svc_tmp.vec.npy")
         print(
             f"Auto run : python hubert/inference.py -w {args.wave} -v {args.vec}")
         os.system(f"python hubert/inference.py -w {args.wave} -v {args.vec}")
 
     if (args.pit == None):
-        args.pit = "svc_tmp.pit.csv"
+        args.pit = os.path.join(temp_dir, "svc_tmp.pit.csv")
         print(
             f"Auto run : python pitch/inference.py -w {args.wave} -p {args.pit}")
-        os.system(f"python pitch/inference.py -w {args.wave} -p {args.pit}")
+        # os.system(f"python pitch/inference.py -w {args.wave} -p {args.pit}")
+        pitch_infer(args.wave, args.pit, args.pit_type)
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -199,8 +208,17 @@ def main(args):
         pit = pit * shift
     pit = torch.FloatTensor(pit)
 
-    out_audio = svc_infer(model, retrieval, spk, pit, ppg, vec, hp, device)
-    write("svc_out.wav", hp.data.sampling_rate, out_audio)
+    # out_audio = svc_infer(model, retrieval, spk, pit, ppg, vec, hp, device)
+    # write("svc_out.wav", hp.data.sampling_rate, out_audio)
+    shift_info = ''
+    if args.shift > 0:
+        shift_info = "(+" + str(args.shift) + ")"
+    elif args.shift < 0:
+        shift_info = "(" + str(args.shift) + ")"
+    out_audio = svc_infer(model, retrieval, spk, pit, ppg, vec, hp, device, temp_dir)
+    out_file = os.path.join(temp_dir, f"{args.voice}{shift_info}-{os.path.basename(args.wave)}")
+    write(out_file, hp.data.sampling_rate, out_audio)
+    return out_file
 
 
 if __name__ == '__main__':
@@ -221,6 +239,9 @@ if __name__ == '__main__':
                         help="Path of pitch csv file.")
     parser.add_argument('--shift', type=int, default=0,
                         help="Pitch shift key.")
+
+    parser.add_argument('--pit_type', type=str, default='',
+                        help="Pitch type (sing or voice).")
 
     parser.add_argument('--enable-retrieval', action="store_true",
                         help="Enable index feature retrieval")
