@@ -161,7 +161,7 @@ class WebUI:
 
     def preprocessing(self, thread_count):
         print(i18n('开始预处理'))
-        train_process = subprocess.Popen('python -u svc_preprocessing.py -t ' + str(thread_count), stdout=subprocess.PIPE)
+        train_process = subprocess.Popen('uv run  svc_preprocessing.py -t ' + str(thread_count), stdout=subprocess.PIPE)
         while train_process.poll() is None:
             output = train_process.stdout.readline().decode('utf-8')
             print(output, end='')
@@ -190,7 +190,7 @@ class WebUI:
 
     def training(self, model_name):
         print(i18n('开始训练'))
-        train_process = subprocess.Popen('python -u svc_trainer.py -c ' + self.train_config_path + ' -n ' + str(model_name), stdout=subprocess.PIPE, creationflags=subprocess.CREATE_NEW_CONSOLE)
+        train_process = subprocess.Popen('uv run  svc_trainer.py -c ' + self.train_config_path + ' -n ' + str(model_name), stdout=subprocess.PIPE, creationflags=subprocess.CREATE_NEW_CONSOLE)
         while train_process.poll() is None:
             output = train_process.stdout.readline().decode('utf-8')
             print(output, end='')
@@ -205,7 +205,7 @@ class WebUI:
     def out_model(self, model_name, resume_model2):
         print(i18n('开始导出模型'))
         try:
-            subprocess.Popen('python -u svc_export.py -c {} -p "chkpt/{}/{}"'.format(self.train_config_path, model_name, resume_model2),stdout=subprocess.PIPE)
+            subprocess.Popen('uv run  svc_export.py -c {} -p "chkpt/{}/{}"'.format(self.train_config_path, model_name, resume_model2),stdout=subprocess.PIPE)
             print(i18n('导出模型成功'))
         except Exception as e:
             print(i18n("出现错误："), e)
@@ -273,7 +273,7 @@ class WebUI:
     def resume_train(self, model_name, resume_model ,learning_rate, batch_size, info_interval, eval_interval, save_interval, keep_ckpts, slow_model):
         print(i18n('开始恢复训练'))
         self.create_config(model_name, learning_rate, batch_size, info_interval, eval_interval, save_interval,keep_ckpts, slow_model)
-        train_process = subprocess.Popen('python -u svc_trainer.py -c {} -n {} -p "chkpt/{}/{}"'.format(self.train_config_path, model_name, model_name, resume_model), stdout=subprocess.PIPE, creationflags=subprocess.CREATE_NEW_CONSOLE)
+        train_process = subprocess.Popen('uv run  svc_trainer.py -c {} -n {} -p "chkpt/{}/{}"'.format(self.train_config_path, model_name, model_name, resume_model), stdout=subprocess.PIPE, creationflags=subprocess.CREATE_NEW_CONSOLE)
         while train_process.poll() is None:
             output = train_process.stdout.readline().decode('utf-8')
             print(output, end='')
@@ -296,7 +296,7 @@ class WebUI:
             soundfile.write(input_name, data, samplerate)
         train_config_path = shlex.quote(self.train_config_path)
         keychange = shlex.quote(str(keychange))
-        cmd = ["python", "-u", "svc_inference.py", "--config", train_config_path, "--model", "sovits5.0.pth", "--spk",
+        cmd = ["uv run",  "svc_inference.py", "--config", train_config_path, "--model", "sovits5.0.pth", "--spk",
                f"data_svc/singer/{resume_voice}", "--wave", "test.wav", "--shift", keychange]
         train_process = subprocess.run(cmd, shell=False, capture_output=True, text=True)
         print(train_process.stdout)

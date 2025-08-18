@@ -2,10 +2,11 @@ import os
 import torch
 import argparse
 import subprocess
+import warnings
 
 from svc_ensure_models import ensure_models
 
-assert torch.cuda.is_available(), "\033[31m You need GPU to Train! \033[0m"
+warnings.filterwarnings('ignore')
 print("CPU Count is :", os.cpu_count())
 ensure_models()
 parser = argparse.ArgumentParser()
@@ -14,21 +15,21 @@ parser.add_argument("--custom_whisper", type=str, default=None, help="Custom whi
 args = parser.parse_args()
 
 if args.custom_whisper:
-    whisper_cmd = "python prepare/preprocess_ppg.py -w data_svc/waves-16k/ -p data_svc/whisper --custom_whisper " + args.custom_whisper
+    whisper_cmd = "uv run prepare/preprocess_ppg.py -w data_svc/waves-16k/ -p data_svc/whisper --custom_whisper " + args.custom_whisper
 else:
-    whisper_cmd = "python prepare/preprocess_ppg.py -w data_svc/waves-16k/ -p data_svc/whisper"
+    whisper_cmd = "uv run prepare/preprocess_ppg.py -w data_svc/waves-16k/ -p data_svc/whisper"
 commands = [
-    "python prepare/preprocess_a.py -w ./dataset_raw -o ./data_svc/waves-16k -s 16000 -t 0",
-    "python prepare/preprocess_a.py -w ./dataset_raw -o ./data_svc/waves-48k -s 48000 -t 0",
-    #"python prepare/preprocess_crepe.py -w data_svc/waves-16k/ -p data_svc/pitch",
-    "python prepare/preprocess_rmvpe.py -w data_svc/waves-16k/ -p data_svc/pitch",
+    f"uv run prepare/preprocess_a.py -w ./dataset_raw -o ./data_svc/waves-16k -s 16000 -t {args.t}",
+    f"uv run prepare/preprocess_a.py -w ./dataset_raw -o ./data_svc/waves-48k -s 48000 -t {args.t}",
+    #f"uv run prepare/preprocess_crepe.py -w data_svc/waves-16k/ -p data_svc/pitch",
+    f"uv run prepare/preprocess_rmvpe.py -w data_svc/waves-16k/ -p data_svc/pitch -t {args.t}",
     whisper_cmd,
-    "python prepare/preprocess_hubert.py -w data_svc/waves-16k/ -v data_svc/hubert",
-    "python prepare/preprocess_speaker.py data_svc/waves-16k/ data_svc/speaker -t 0",
-    "python prepare/preprocess_speaker_ave.py data_svc/speaker/ data_svc/singer",
-    "python prepare/preprocess_spec.py -w data_svc/waves-48k/ -s data_svc/specs -t 0",
-    "python prepare/preprocess_train.py",
-    "python prepare/preprocess_zzz.py",
+    f"uv run prepare/preprocess_hubert.py -w data_svc/waves-16k/ -v data_svc/hubert",
+    f"uv run prepare/preprocess_speaker.py data_svc/waves-16k/ data_svc/speaker -t {args.t}",
+    f"uv run prepare/preprocess_speaker_ave.py data_svc/speaker/ data_svc/singer",
+    f"uv run prepare/preprocess_spec.py -w data_svc/waves-48k/ -s data_svc/specs -t {args.t}",
+    f"uv run prepare/preprocess_train.py",
+    f"uv run prepare/preprocess_zzz.py",
 ]
 
 for command in commands:

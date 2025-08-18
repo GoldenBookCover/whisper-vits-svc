@@ -146,20 +146,20 @@ def main(args):
     if (args.ppg == None):
         args.ppg = os.path.join(temp_dir, "svc_tmp.ppg.npy")
         print(
-            f"Auto run : python whisper/inference.py -w {args.wave} -p {args.ppg}")
-        os.system(f"python whisper/inference.py -w {args.wave} -p {args.ppg}")
+            f"Auto run : uv run whisper/inference.py -w {args.wave} -p {args.ppg}")
+        os.system(f"uv run whisper/inference.py -w {args.wave} -p {args.ppg}")
 
     if (args.vec == None):
         args.vec = os.path.join(temp_dir, "svc_tmp.vec.npy")
         print(
-            f"Auto run : python hubert/inference.py -w {args.wave} -v {args.vec}")
-        os.system(f"python hubert/inference.py -w {args.wave} -v {args.vec}")
+            f"Auto run : uv run hubert/inference.py -w {args.wave} -v {args.vec}")
+        os.system(f"uv run hubert/inference.py -w {args.wave} -v {args.vec}")
 
     if (args.pit == None):
         args.pit = os.path.join(temp_dir, "svc_tmp.pit.csv")
         print(
-            f"Auto run : python pitch/inference.py -w {args.wave} -p {args.pit}")
-        # os.system(f"python pitch/inference.py -w {args.wave} -p {args.pit}")
+            f"Auto run : uv run pitch/inference.py -w {args.wave} -p {args.pit}")
+        # os.system(f"uv run pitch/inference.py -w {args.wave} -p {args.pit}")
         pitch_infer(args.wave, args.pit, args.pit_type)
 
     if args.debug:
